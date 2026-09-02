@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
-namespace TinifyAI;
+namespace GlassyPic;
 
 class Scheduler
 {
-	public const ACTION_HOOK  = 'tinify_ai/process_attachment';
-	public const ACTION_GROUP = 'tinify_ai';
+	public const ACTION_HOOK  = 'glassypic/process_attachment';
+	public const ACTION_GROUP = 'glassypic';
 
 	public function __construct( private readonly MetaManager $meta ) {}
 
@@ -14,7 +14,7 @@ class Scheduler
 	 * Returns $metadata unchanged — WP requires this filter to pass metadata through.
 	 */
 	public function queueOnUpload( array $metadata, int $attachmentId ): array {
-		if ( ! get_option('tinify_auto_optimize', true)) {
+		if ( ! get_option('glassypic_auto_optimize', true)) {
 			return $metadata;
 		}
 

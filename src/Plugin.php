@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace TinifyAI;
+namespace GlassyPic;
 
 class Plugin
 {
@@ -35,13 +35,13 @@ class Plugin
 		add_filter('manage_media_columns', [ $mediaLibrary, 'addStatusColumn' ]);
 		add_action('manage_media_custom_column', [ $mediaLibrary, 'renderStatusColumn' ], 10, 2);
 		add_action('attachment_submitbox_misc_actions', [ $mediaLibrary, 'renderAttachmentPanel' ]);
-		add_action('wp_ajax_tinify_optimize_single', [ $mediaLibrary, 'handleAjaxOptimizeSingle' ]);
-		add_action('wp_ajax_tinify_restore_original', [ $mediaLibrary, 'handleAjaxRestoreOriginal' ]);
+		add_action('wp_ajax_glassypic_optimize_single', [ $mediaLibrary, 'handleAjaxOptimizeSingle' ]);
+		add_action('wp_ajax_glassypic_restore_original', [ $mediaLibrary, 'handleAjaxRestoreOriginal' ]);
 
 		// Bulk optimizer AJAX
 		$bulkOptimizer = new BulkOptimizer($this->meta, $this->scheduler, $this->settings, $this->api);
-		add_action('wp_ajax_tinify_bulk_queue', [ $bulkOptimizer, 'handleAjaxBulkQueue' ]);
-		add_action('wp_ajax_tinify_bulk_status', [ $bulkOptimizer, 'handleAjaxBulkStatus' ]);
+		add_action('wp_ajax_glassypic_bulk_queue', [ $bulkOptimizer, 'handleAjaxBulkQueue' ]);
+		add_action('wp_ajax_glassypic_bulk_status', [ $bulkOptimizer, 'handleAjaxBulkStatus' ]);
 
 		// Admin notices
 		add_action('admin_notices', [ $this, 'showCreditsExhaustedNotice' ]);
@@ -52,39 +52,39 @@ class Plugin
 
 	public function registerAdminPages(): void {
 		add_options_page(
-			esc_html__('tinify.ai', 'tinify-ai'),
-			esc_html__('tinify.ai', 'tinify-ai'),
+			esc_html__('GlassyPic', 'glassypic'),
+			esc_html__('GlassyPic', 'glassypic'),
 			'manage_options',
-			'tinify-ai',
+			'glassypic',
 			[ $this->settings, 'renderPage' ]
 		);
 		add_media_page(
-			esc_html__('Bulk Optimize — tinify.ai', 'tinify-ai'),
-			esc_html__('Bulk Optimize', 'tinify-ai'),
+			esc_html__('Bulk Optimize — GlassyPic', 'glassypic'),
+			esc_html__('Bulk Optimize', 'glassypic'),
 			'upload_files',
-			'tinify-ai-bulk',
+			'glassypic-bulk',
 			[ new BulkOptimizer($this->meta, $this->scheduler, $this->settings, $this->api), 'renderPage' ]
 		);
 	}
 
 	public function enqueueAssets( string $hook ): void {
-		if ( ! in_array($hook, [ 'upload.php', 'post.php', 'settings_page_tinify-ai', 'media_page_tinify-ai-bulk' ], true)) {
+		if ( ! in_array($hook, [ 'upload.php', 'post.php', 'settings_page_glassypic', 'media_page_glassypic-bulk' ], true)) {
 			return;
 		}
 		if ($hook === 'post.php' && get_post_type() !== 'attachment') {
 			return;
 		}
-		wp_enqueue_script('tinify-ai-admin', plugin_dir_url(TINIFY_AI_FILE) . 'assets/admin.js', [ 'jquery' ], '1.0.0', true);
-		wp_enqueue_style('tinify-ai-admin', plugin_dir_url(TINIFY_AI_FILE) . 'assets/admin.css', [], '1.0.0');
-		wp_localize_script('tinify-ai-admin', 'tinifyAi', [
+		wp_enqueue_script('glassypic-admin', plugin_dir_url(GLASSYPIC_FILE) . 'assets/admin.js', [ 'jquery' ], '1.0.0', true);
+		wp_enqueue_style('glassypic-admin', plugin_dir_url(GLASSYPIC_FILE) . 'assets/admin.css', [], '1.0.0');
+		wp_localize_script('glassypic-admin', 'glassyPic', [
 			'ajaxUrl'        => admin_url('admin-ajax.php'),
-			'nonce'          => wp_create_nonce('tinify_ajax'),
-			'restoreConfirm' => __('Restore the original unoptimized file? This cannot be undone.', 'tinify-ai'),
+			'nonce'          => wp_create_nonce('glassypic_ajax'),
+			'restoreConfirm' => __('Restore the original unoptimized file? This cannot be undone.', 'glassypic'),
 		]);
 	}
 
 	public function showCreditsExhaustedNotice(): void {
-		$resetAt = get_transient('tinify_credits_reset_at');
+		$resetAt = get_transient('glassypic_credits_reset_at');
 		if ( ! $resetAt) {
 			return;
 		}
@@ -93,9 +93,9 @@ class Plugin
 			'<div class="notice notice-warning is-dismissible"><p>%s</p></div>',
 			sprintf(
 				/* translators: 1: date when credits reset, 2: upgrade link HTML */
-				esc_html__('tinify.ai: You\'ve run out of credits. Paused jobs will resume automatically on %1$s. %2$s', 'tinify-ai'),
+				esc_html__('GlassyPic: You\'ve run out of credits. Paused jobs will resume automatically on %1$s. %2$s', 'glassypic'),
 				esc_html($date),
-				'<a href="https://tinify.ai/pricing" target="_blank">' . esc_html__('Upgrade Plan', 'tinify-ai') . ' ↗</a>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				'<a href="https://glassypic.com/pricing" target="_blank">' . esc_html__('Upgrade Plan', 'glassypic') . ' ↗</a>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			)
 		);
 	}

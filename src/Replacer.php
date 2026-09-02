@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace TinifyAI;
+namespace GlassyPic;
 
 class Replacer
 {
@@ -48,8 +48,8 @@ class Replacer
 			throw new \RuntimeException('Downloaded file failed image integrity check');
 		}
 
-		// Create .tinify-orig backup before overwriting
-		$backupPath = $destPath . '.tinify-orig';
+		// Create .glassypic-orig backup before overwriting
+		$backupPath = $destPath . '.glassypic-orig';
 		if ( ! file_exists($backupPath)) {
 			copy($destPath, $backupPath);
 			$this->meta->setOrigBackup($attachmentId, $backupPath);

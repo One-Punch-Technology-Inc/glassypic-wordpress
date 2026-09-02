@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace TinifyAI;
+namespace GlassyPic;
 
-use TinifyAI\Exception\InsufficientCreditsException;
-use TinifyAI\Exception\PollTimeoutException;
+use GlassyPic\Exception\InsufficientCreditsException;
+use GlassyPic\Exception\PollTimeoutException;
 
 class Processor
 {
@@ -52,7 +52,7 @@ class Processor
 
 			// Phase 4: Download + Replace
 			$processedContent = $this->api->downloadProcessedFile($jobId);
-			$tmpPath          = wp_tempnam('tinify_');
+			$tmpPath          = wp_tempnam('glassypic_');
 			file_put_contents($tmpPath, $processedContent); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			$this->replacer->swap($attachmentId, $tmpPath);
 
@@ -131,16 +131,16 @@ class Processor
 		global $wpdb;
 		$pendingIds = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tinify_status' AND meta_value = %s",
+				"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_glassypic_status' AND meta_value = %s",
 				'pending'
 			)
 		);
 		foreach ($pendingIds as $id) {
 			$this->scheduler->rescheduleAt( (int) $id, $resumeAt);
-			update_post_meta( (int) $id, '_tinify_status', 'paused');
+			update_post_meta( (int) $id, '_glassypic_status', 'paused');
 		}
 
-		set_transient('tinify_credits_reset_at', $creditsResetAt, DAY_IN_SECONDS * 2);
+		set_transient('glassypic_credits_reset_at', $creditsResetAt, DAY_IN_SECONDS * 2);
 	}
 
 	private function optimizeThumbnails( int $attachmentId, string $originalFilePath ): void {
@@ -164,7 +164,7 @@ class Processor
 				]);
 				$this->pollUntilDone($jobId);
 				$content = $this->api->downloadProcessedFile($jobId);
-				$tmpPath = wp_tempnam('tinify_thumb_');
+				$tmpPath = wp_tempnam('glassypic_thumb_');
 				file_put_contents($tmpPath, $content); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 				copy($tmpPath, $thumbPath);
 				wp_delete_file($tmpPath);

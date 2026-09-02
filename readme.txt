@@ -1,5 +1,5 @@
-=== tinify.ai — AI Image Optimization ===
-Contributors: tinifyai
+=== GlassyPic — AI Image Optimization ===
+Contributors: glassypic
 Tags: image optimization, compress images, webp, avif, alt text
 Requires at least: 6.0
 Tested up to: 6.7
@@ -8,17 +8,17 @@ Stable tag: 1.0.0
 License: GPL-2.0-only
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI image optimizer: upscale with Real-ESRGAN, compress via TinyPNG, convert to WebP/AVIF, and auto-generate SEO alt text — runs in the background.
+AI image optimizer: upscale with Real-ESRGAN, apply perceptual compression, convert to WebP/AVIF, and auto-generate SEO alt text — runs in the background.
 
 == Description ==
 
-**tinify.ai** is the only WordPress image optimization plugin that combines AI upscaling, smart compression, modern format conversion, and automatic SEO alt text generation in a single automated background workflow.
+**GlassyPic** is the only WordPress image optimization plugin that combines AI upscaling, smart compression, modern format conversion, and automatic SEO alt text generation in a single automated background workflow.
 
 Every image you upload is automatically sent through a four-stage AI pipeline:
 
 1. **Upscale** — Enhance low-resolution images with Real-ESRGAN, the same AI model used in professional photography workflows
 2. **Resize** — Fit to your configured maximum dimensions with letterbox padding or center-crop
-3. **Compress** — Reduce file size using TinyPNG's battle-tested smart compression (lossless and lossy)
+3. **Compress** — Shrink the file with perceptual compression, which strips data the eye cannot resolve (lossless and lossy)
 4. **Tag** — Generate descriptive, keyword-rich SEO alt text using AI and write it directly to WordPress media metadata
 
 Processing runs in the background using ActionScheduler — uploads complete instantly and optimization never slows your site.
@@ -53,13 +53,13 @@ Choose your target format once in Settings — the pipeline converts every image
 
 = How It Works =
 
-tinify.ai sends your image to the tinify.ai cloud API, which runs the full pipeline and returns the optimized file. The plugin atomically replaces your original with the result, stores the original as a `.tinify-orig` backup, and writes all metadata back to WordPress. Images are not stored permanently on tinify.ai servers after processing.
+GlassyPic sends your image to the GlassyPic cloud API, which runs the full pipeline and returns the optimized file. The plugin atomically replaces your original with the result, stores the original as a `.glassypic-orig` backup, and writes all metadata back to WordPress. Images are not stored permanently on GlassyPic servers after processing.
 
-API calls are made to `api.tinify.ai`. See the [Privacy Policy](https://tinify.ai/privacy) and [Terms of Service](https://tinify.ai/terms).
+API calls are made to `api.glassypic.com`. See the [Privacy Policy](https://glassypic.com/privacy) and [Terms of Service](https://glassypic.com/terms).
 
 = What Makes This Different From Other Image Optimization Plugins =
 
-Most WordPress image optimizers are single-step compressors. tinify.ai runs a four-stage pipeline:
+Most WordPress image optimizers are single-step compressors. GlassyPic runs a four-stage pipeline:
 
 * AI upscaling (Real-ESRGAN) before compression, so low-res images come out sharper — not just smaller
 * AI-generated alt text written directly to WordPress metadata on every optimized image
@@ -69,20 +69,20 @@ Most WordPress image optimizers are single-step compressors. tinify.ai runs a fo
 
 == External Services ==
 
-This plugin sends image data to **api.tinify.ai** for processing. Images are not stored permanently after processing. By using this plugin, you agree to the:
+This plugin sends image data to **api.glassypic.com** for processing. Images are not stored permanently after processing. By using this plugin, you agree to the:
 
-* [Terms of Service](https://tinify.ai/terms)
-* [Privacy Policy](https://tinify.ai/privacy)
+* [Terms of Service](https://glassypic.com/terms)
+* [Privacy Policy](https://glassypic.com/privacy)
 
-A tinify.ai account and API key (`tfy_live_...`) are required.
+A GlassyPic account and API key (`tfy_live_...`) are required.
 
 == Installation ==
 
-1. Upload the plugin folder to `/wp-content/plugins/tinify-ai/` or install directly from the WordPress Plugin Directory
+1. Upload the plugin folder to `/wp-content/plugins/glassypic/` or install directly from the WordPress Plugin Directory
 2. Activate the plugin through the **Plugins** menu in WordPress admin
-3. Navigate to **Settings → tinify.ai**
-4. Create a free account at [tinify.ai/signup](https://tinify.ai/signup)
-5. In your tinify.ai dashboard, go to **API Keys → Generate New Key**, name it, and copy it
+3. Navigate to **Settings → GlassyPic**
+4. Create a free account at [glassypic.com/register](https://glassypic.com/register)
+5. In your GlassyPic dashboard, go to **API Keys → Generate New Key**, name it, and copy it
 6. Paste the key (starts with `tfy_live_`) into the API Key field and click **Save Settings**
 7. New uploads are now optimized automatically — run **Media → Bulk Optimize** to process your existing library
 
@@ -101,21 +101,21 @@ Yes. Go to **Media → Bulk Optimize**. The page shows how many images in your l
 Input: JPEG, PNG, WebP, GIF, AVIF, SVG (SVG passes MIME validation but is not rasterized).
 Output: your choice of Original (unchanged), WebP, AVIF, JPEG, or PNG — set once in Settings.
 
-= Does tinify.ai generate alt text automatically? =
+= Does GlassyPic generate alt text automatically? =
 
 Yes. When **SEO Alt Text** is enabled (on by default), the AI pipeline writes a descriptive alt text string to the standard WordPress `_wp_attachment_image_alt` meta field. It appears in the Media Library editor and is read by all themes and plugins that use WordPress alt text.
 
 = Will optimization overwrite my original images? =
 
-The optimized file replaces the original in WordPress, but your original is always saved as a `<filename>.tinify-orig` backup in the same directory. You can restore it at any time from the attachment edit screen or directly from the Media Library column — with a single click.
+The optimized file replaces the original in WordPress, but your original is always saved as a `<filename>.glassypic-orig` backup in the same directory. You can restore it at any time from the attachment edit screen or directly from the Media Library column — with a single click.
 
-= What is the difference between tinify.ai and TinyPNG? =
+= How is this different from a compression plugin? =
 
-TinyPNG is a compression service for a single step (compress). tinify.ai is a full four-stage optimization pipeline: AI upscaling, configurable resizing, TinyPNG-quality compression, and AI alt text generation. The WordPress plugin automates the entire pipeline on every upload.
+A compression plugin does one step: it makes the file smaller. GlassyPic runs four — AI upscaling, configurable resizing, perceptual compression, and AI alt text — on every upload, so images land production-ready instead of merely lighter.
 
 = How many credits does optimization use? =
 
-Each full-size image uses 1 credit. Thumbnail compression uses approximately 3 credits per size (opt-in, disabled by default). See [tinify.ai/pricing](https://tinify.ai/pricing) for plan details and credit limits.
+Each full-size image uses 1 credit. Thumbnail compression uses approximately 3 credits per size (opt-in, disabled by default). See [glassypic.com/pricing](https://glassypic.com/pricing) for plan details and credit limits.
 
 = What happens when my credits run out? =
 

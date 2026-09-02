@@ -1,29 +1,29 @@
 <?php
 declare(strict_types=1);
-namespace TinifyAI;
+namespace GlassyPic;
 
 class Settings
 {
 	public function register(): void {
-		register_setting('tinify_ai', 'tinify_api_key', [ 'sanitize_callback' => [ $this, 'sanitizeApiKey' ] ]);
-		register_setting('tinify_ai', 'tinify_auto_optimize', [ 'sanitize_callback' => 'rest_sanitize_boolean' ]);
-		register_setting('tinify_ai', 'tinify_seo_alt_text', [ 'sanitize_callback' => 'rest_sanitize_boolean' ]);
-		register_setting('tinify_ai', 'tinify_optimize_thumbnails', [ 'sanitize_callback' => 'rest_sanitize_boolean' ]);
-		register_setting('tinify_ai', 'tinify_pipeline_settings', [ 'sanitize_callback' => [ $this, 'sanitizePipelineSettings' ] ]);
+		register_setting('glassypic', 'glassypic_api_key', [ 'sanitize_callback' => [ $this, 'sanitizeApiKey' ] ]);
+		register_setting('glassypic', 'glassypic_auto_optimize', [ 'sanitize_callback' => 'rest_sanitize_boolean' ]);
+		register_setting('glassypic', 'glassypic_seo_alt_text', [ 'sanitize_callback' => 'rest_sanitize_boolean' ]);
+		register_setting('glassypic', 'glassypic_optimize_thumbnails', [ 'sanitize_callback' => 'rest_sanitize_boolean' ]);
+		register_setting('glassypic', 'glassypic_pipeline_settings', [ 'sanitize_callback' => [ $this, 'sanitizePipelineSettings' ] ]);
 
-		add_settings_section('tinify_main', '', '__return_empty_string', 'tinify_ai');
-		add_settings_field('tinify_api_key', esc_html__('API Key', 'tinify-ai'), [ $this, 'renderApiKeyField' ], 'tinify_ai', 'tinify_main');
+		add_settings_section('glassypic_main', '', '__return_empty_string', 'glassypic');
+		add_settings_field('glassypic_api_key', esc_html__('API Key', 'glassypic'), [ $this, 'renderApiKeyField' ], 'glassypic', 'glassypic_main');
 	}
 
 	public function sanitizeApiKey( string $value ): string {
 		$trimmed = trim($value);
 		// Treat empty or masked placeholder as "no change" — keep existing encrypted value
 		if ($trimmed === '' || str_contains($trimmed, '•')) {
-			return get_option('tinify_api_key', '');
+			return get_option('glassypic_api_key', '');
 		}
 		if ( ! str_starts_with($trimmed, 'tfy_live_')) {
-			add_settings_error('tinify_ai', 'invalid_key', esc_html__('API key must start with tfy_live_', 'tinify-ai'));
-			return get_option('tinify_api_key', '');
+			add_settings_error('glassypic', 'invalid_key', esc_html__('API key must start with tfy_live_', 'glassypic'));
+			return get_option('glassypic_api_key', '');
 		}
 		return $this->encryptKey($trimmed);
 	}
@@ -42,7 +42,7 @@ class Settings
 	}
 
 	public function getApiKey(): ?string {
-		$encrypted = get_option('tinify_api_key', '');
+		$encrypted = get_option('glassypic_api_key', '');
 		if ($encrypted === '') {
 			return null;
 		}
@@ -50,7 +50,7 @@ class Settings
 	}
 
 	public function getPipelineSettings(): array {
-		return get_option('tinify_pipeline_settings', [
+		return get_option('glassypic_pipeline_settings', [
 			'output_format'          => 'original',
 			'output_width'           => null,
 			'output_height'          => null,
@@ -59,44 +59,44 @@ class Settings
 	}
 
 	public function isAutoOptimize(): bool {
-		return (bool) get_option('tinify_auto_optimize', true);
+		return (bool) get_option('glassypic_auto_optimize', true);
 	}
 
 	public function isSeoAltTextEnabled(): bool {
-		return (bool) get_option('tinify_seo_alt_text', true);
+		return (bool) get_option('glassypic_seo_alt_text', true);
 	}
 
 	public function isOptimizeThumbnails(): bool {
-		return (bool) get_option('tinify_optimize_thumbnails', false);
+		return (bool) get_option('glassypic_optimize_thumbnails', false);
 	}
 
 	public function renderPage(): void {
 		$apiKey           = $this->getApiKey();
 		$hasKey           = $apiKey !== null;
-		$accountCache     = get_transient('tinify_account_cache');
+		$accountCache     = get_transient('glassypic_account_cache');
 		$pipelineSettings = $this->getPipelineSettings();
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e('tinify.ai Settings', 'tinify-ai'); ?></h1>
+			<h1><?php esc_html_e('GlassyPic Settings', 'glassypic'); ?></h1>
 
 			<?php if ( ! $hasKey) : ?>
 			<div class="notice notice-info">
-				<h3><?php esc_html_e('Getting started with tinify.ai', 'tinify-ai'); ?></h3>
+				<h3><?php esc_html_e('Getting started with GlassyPic', 'glassypic'); ?></h3>
 				<ol>
 					<li>
 					<?php
-					/* translators: %s: URL to tinify.ai signup page */
-					printf(esc_html__('Create a free account at %s', 'tinify-ai'), '<a href="https://tinify.ai/signup" target="_blank">tinify.ai/signup</a>'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					/* translators: %s: URL to GlassyPic signup page */
+					printf(esc_html__('Create a free account at %s', 'glassypic'), '<a href="https://glassypic.com/register" target="_blank">glassypic.com/register</a>'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					?>
 					</li>
-					<li><?php esc_html_e('Go to Dashboard → API Keys → Generate New Key', 'tinify-ai'); ?></li>
-					<li><?php esc_html_e('Name it "My WordPress Site" and copy the key', 'tinify-ai'); ?></li>
-					<li><?php esc_html_e('Paste it below and click Save Settings', 'tinify-ai'); ?></li>
+					<li><?php esc_html_e('Go to Dashboard → API Keys → Generate New Key', 'glassypic'); ?></li>
+					<li><?php esc_html_e('Name it "My WordPress Site" and copy the key', 'glassypic'); ?></li>
+					<li><?php esc_html_e('Paste it below and click Save Settings', 'glassypic'); ?></li>
 				</ol>
-				<p><strong><?php esc_html_e('Pricing:', 'tinify-ai'); ?></strong>
+				<p><strong><?php esc_html_e('Pricing:', 'glassypic'); ?></strong>
 					<?php
-					/* translators: %s: URL to tinify.ai pricing page */
-					printf(esc_html__('The WordPress plugin uses your existing %s subscription.', 'tinify-ai'), '<a href="https://tinify.ai/pricing" target="_blank">tinify.ai</a>'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					/* translators: %s: URL to GlassyPic pricing page */
+					printf(esc_html__('The WordPress plugin uses your existing %s subscription.', 'glassypic'), '<a href="https://glassypic.com/pricing" target="_blank">GlassyPic</a>'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					?>
 				</p>
 			</div>
@@ -108,7 +108,7 @@ class Settings
 				<?php
 				printf(
 					/* translators: 1: account tier, 2: credits remaining count */
-					esc_html__('Connected — %1$s plan · %2$s credits remaining', 'tinify-ai'),
+					esc_html__('Connected — %1$s plan · %2$s credits remaining', 'glassypic'),
 					esc_html(ucfirst($accountCache['tier'])),
 					esc_html(number_format($accountCache['credits_remaining']))
 				);
@@ -119,57 +119,57 @@ class Settings
 
 			<form method="post" action="options.php">
 				<?php
-				settings_fields('tinify_ai');
-				do_settings_sections('tinify_ai');
+				settings_fields('glassypic');
+				do_settings_sections('glassypic');
 				?>
 				<table class="form-table" role="presentation">
 					<tr>
-						<th><?php esc_html_e('API Key', 'tinify-ai'); ?></th>
+						<th><?php esc_html_e('API Key', 'glassypic'); ?></th>
 						<td>
-							<input type="password" name="tinify_api_key"
+							<input type="password" name="glassypic_api_key"
 									value="<?php echo $hasKey ? 'tfy_live_••••••••••••' : ''; ?>"
 									class="regular-text" autocomplete="off"
 									placeholder="tfy_live_..." />
-							<p class="description"><?php esc_html_e('Leave unchanged to keep your existing key.', 'tinify-ai'); ?></p>
+							<p class="description"><?php esc_html_e('Leave unchanged to keep your existing key.', 'glassypic'); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th><?php esc_html_e('Auto-optimize', 'tinify-ai'); ?></th>
+						<th><?php esc_html_e('Auto-optimize', 'glassypic'); ?></th>
 						<td>
 							<label>
-								<input type="checkbox" name="tinify_auto_optimize" value="1"
+								<input type="checkbox" name="glassypic_auto_optimize" value="1"
 									<?php checked($this->isAutoOptimize()); ?> />
-								<?php esc_html_e('Optimize new image uploads automatically', 'tinify-ai'); ?>
+								<?php esc_html_e('Optimize new image uploads automatically', 'glassypic'); ?>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th><?php esc_html_e('SEO Alt Text', 'tinify-ai'); ?></th>
+						<th><?php esc_html_e('SEO Alt Text', 'glassypic'); ?></th>
 						<td>
 							<label>
-								<input type="checkbox" name="tinify_seo_alt_text" value="1"
+								<input type="checkbox" name="glassypic_seo_alt_text" value="1"
 									<?php checked($this->isSeoAltTextEnabled()); ?> />
-								<?php esc_html_e('Write AI-generated alt text to image metadata', 'tinify-ai'); ?>
+								<?php esc_html_e('Write AI-generated alt text to image metadata', 'glassypic'); ?>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th><?php esc_html_e('Optimize Thumbnails', 'tinify-ai'); ?></th>
+						<th><?php esc_html_e('Optimize Thumbnails', 'glassypic'); ?></th>
 						<td>
 							<label>
-								<input type="checkbox" name="tinify_optimize_thumbnails" value="1"
+								<input type="checkbox" name="glassypic_optimize_thumbnails" value="1"
 									<?php checked($this->isOptimizeThumbnails()); ?> />
-								<?php esc_html_e('Also compress each thumbnail (~3 credits per size, default OFF)', 'tinify-ai'); ?>
+								<?php esc_html_e('Also compress each thumbnail (~3 credits per size, default OFF)', 'glassypic'); ?>
 							</label>
 						</td>
 					</tr>
 					<tr>
-						<th><?php esc_html_e('Output Format', 'tinify-ai'); ?></th>
+						<th><?php esc_html_e('Output Format', 'glassypic'); ?></th>
 						<td>
-							<select name="tinify_pipeline_settings[output_format]">
+							<select name="glassypic_pipeline_settings[output_format]">
 								<?php
 								$formats = [
-									'original' => esc_html__('Original format', 'tinify-ai'),
+									'original' => esc_html__('Original format', 'glassypic'),
 									'webp'     => 'WebP',
 									'avif'     => 'AVIF',
 									'jpg'      => 'JPEG',
@@ -186,31 +186,31 @@ class Settings
 						</td>
 					</tr>
 					<tr>
-						<th><?php esc_html_e('Max Dimensions', 'tinify-ai'); ?></th>
+						<th><?php esc_html_e('Max Dimensions', 'glassypic'); ?></th>
 						<td>
-							<input type="number" name="tinify_pipeline_settings[output_width]"
+							<input type="number" name="glassypic_pipeline_settings[output_width]"
 								value="<?php echo esc_attr($pipelineSettings['output_width'] ?? ''); ?>"
 								min="0" max="10000" style="width:80px" placeholder="W" />
 							&times;
-							<input type="number" name="tinify_pipeline_settings[output_height]"
+							<input type="number" name="glassypic_pipeline_settings[output_height]"
 								value="<?php echo esc_attr($pipelineSettings['output_height'] ?? ''); ?>"
 								min="0" max="10000" style="width:80px" placeholder="H" />
-							<p class="description"><?php esc_html_e('Leave blank for no resize.', 'tinify-ai'); ?></p>
+							<p class="description"><?php esc_html_e('Leave blank for no resize.', 'glassypic'); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th><?php esc_html_e('Resize Behavior', 'tinify-ai'); ?></th>
+						<th><?php esc_html_e('Resize Behavior', 'glassypic'); ?></th>
 						<td>
 							<label>
-								<input type="radio" name="tinify_pipeline_settings[output_resize_behavior]"
+								<input type="radio" name="glassypic_pipeline_settings[output_resize_behavior]"
 									value="pad" <?php checked($pipelineSettings['output_resize_behavior'], 'pad'); ?> />
-								<?php esc_html_e('Pad (letterbox)', 'tinify-ai'); ?>
+								<?php esc_html_e('Pad (letterbox)', 'glassypic'); ?>
 							</label>
 							&nbsp;&nbsp;
 							<label>
-								<input type="radio" name="tinify_pipeline_settings[output_resize_behavior]"
+								<input type="radio" name="glassypic_pipeline_settings[output_resize_behavior]"
 									value="crop" <?php checked($pipelineSettings['output_resize_behavior'], 'crop'); ?> />
-								<?php esc_html_e('Crop (center)', 'tinify-ai'); ?>
+								<?php esc_html_e('Crop (center)', 'glassypic'); ?>
 							</label>
 						</td>
 					</tr>

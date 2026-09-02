@@ -5,7 +5,7 @@
          colors="true"
          beStrictAboutTestsThatDoNotTestAnything="false">
     <testsuites>
-        <testsuite name="TinifyAI">
+        <testsuite name="GlassyPic">
             <directory>tests/Unit</directory>
         </testsuite>
     </testsuites>

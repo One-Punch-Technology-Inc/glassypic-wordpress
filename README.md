@@ -1,10 +1,12 @@
-# tinify.ai — AI Image Optimization for WordPress
+# GlassyPic — AI Image Optimization for WordPress
+
+> **GitHub account: `onepunchtechnology`.** company (One Punch Technology) repo. Run `gh auth switch --user onepunchtechnology` once at the start of any session and **stay on it** for all `gh` / `git push` work — do not switch back to a personal account mid-session.
 
 [![PHP 8.1+](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://php.net)
 [![WordPress 6.0+](https://img.shields.io/badge/WordPress-6.0%2B-blue)](https://wordpress.org)
 [![License: GPL-2.0](https://img.shields.io/badge/License-GPL--2.0-green)](https://www.gnu.org/licenses/gpl-2.0.html)
 
-WordPress plugin for [tinify.ai](https://tinify.ai) — a four-stage AI image optimization pipeline: upscale (Real-ESRGAN), resize, compress (TinyPNG), and auto-generate SEO alt text. Runs in the background via ActionScheduler.
+WordPress plugin for [GlassyPic](https://glassypic.com) — a four-stage AI image optimization pipeline: upscale (Real-ESRGAN), resize, perceptual compression, and auto-generate SEO alt text. Runs in the background via ActionScheduler.
 
 > For installation instructions, feature descriptions, and FAQ see the WordPress.org plugin listing (coming soon) or [`readme.txt`](readme.txt).
 
@@ -39,7 +41,7 @@ Tests use PHPUnit 10 + Brain\Monkey (Mockery-backed WordPress function stubs) �
 
 ## Architecture
 
-`tinify-ai.php` bootstraps on `plugins_loaded` and calls `Plugin::init()`, the single wiring point for all WordPress hooks. No hooks are registered outside of `Plugin`.
+`glassypic.php` bootstraps on `plugins_loaded` and calls `Plugin::init()`, the single wiring point for all WordPress hooks. No hooks are registered outside of `Plugin`.
 
 ### Processing pipeline
 
@@ -52,8 +54,8 @@ Upload event
                  ├─ ApiClient::process()            → job_id
                  ├─ ApiClient::pollJob()            → polls every 3s, max 5 min
                  ├─ ApiClient::downloadProcessedFile()
-                 ├─ Replacer::swap()                → atomic copy+rename, .tinify-orig backup
-                 ├─ MetaManager::saveResults()      → _tinify_* meta, status=completed
+                 ├─ Replacer::swap()                → atomic copy+rename, .glassypic-orig backup
+                 ├─ MetaManager::saveResults()      → _glassypic_* meta, status=completed
                  └─ Processor::optimizeThumbnails() → opt-in, non-fatal
 ```
 
@@ -65,7 +67,7 @@ Upload event
                               → paused   (credits exhausted; auto-resumes)
 ```
 
-All status is stored in `_tinify_*` attachment post meta, managed exclusively by `MetaManager`.
+All status is stored in `_glassypic_*` attachment post meta, managed exclusively by `MetaManager`.
 
 ### Key gotchas
 
@@ -80,5 +82,5 @@ All status is stored in `_tinify_*` attachment post meta, managed exclusively by
 Check the ActionScheduler queue:
 
 ```
-/wp-admin/tools.php?page=action-scheduler&s=tinify_ai
+/wp-admin/tools.php?page=action-scheduler&s=glassypic
 ```

@@ -1,6 +1,6 @@
 {
-  "name": "tinifyai/tinify-ai",
-  "description": "WordPress plugin for tinify.ai — AI image optimization pipeline: upscale (Real-ESRGAN), resize, compress (TinyPNG), and auto-generate SEO alt text. Runs in background via ActionScheduler.",
+  "name": "glassypic/glassypic",
+  "description": "WordPress plugin for GlassyPic — AI image optimization pipeline: upscale (Real-ESRGAN), resize, perceptual compression, and auto-generate SEO alt text. Runs in background via ActionScheduler.",
   "type": "wordpress-plugin",
   "keywords": [
     "wordpress",
@@ -9,23 +9,22 @@
     "image-compression",
     "webp",
     "avif",
-    "tinypng",
     "alt-text",
     "seo",
     "real-esrgan",
     "ai",
     "media-library"
   ],
-  "homepage": "https://tinify.ai",
+  "homepage": "https://glassypic.com",
   "support": {
-    "docs": "https://tinify.ai/docs",
-    "issues": "https://github.com/tinifyai/tinify-ai-wordpress/issues",
-    "source": "https://github.com/tinifyai/tinify-ai-wordpress"
+    "docs": "https://glassypic.com/docs",
+    "issues": "https://github.com/onepunchtechnology/glassypic-wordpress/issues",
+    "source": "https://github.com/onepunchtechnology/glassypic-wordpress"
   },
   "authors": [
     {
-      "name": "tinify.ai",
-      "homepage": "https://tinify.ai",
+      "name": "GlassyPic",
+      "homepage": "https://glassypic.com",
       "role": "Developer"
     }
   ],
@@ -42,10 +41,10 @@
     "wp-coding-standards/wpcs": "^3.0"
   },
   "autoload": {
-    "psr-4": { "TinifyAI\\": "src/" }
+    "psr-4": { "GlassyPic\\": "src/" }
   },
   "autoload-dev": {
-    "psr-4": { "TinifyAI\\Tests\\": "tests/" }
+    "psr-4": { "GlassyPic\\Tests\\": "tests/" }
   },
   "scripts": {
     "test": "phpunit --testdox",

@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
-namespace TinifyAI;
+namespace GlassyPic;
 
 class MetaManager
 {
-	private const PREFIX = '_tinify_';
+	private const PREFIX = '_glassypic_';
 
 	public function getStatus( int $attachmentId ): string {
 		return (string) get_post_meta($attachmentId, self::PREFIX . 'status', true);
@@ -33,10 +33,10 @@ class MetaManager
 
 	public function saveResults( int $attachmentId, array $results ): void {
 		$fields = [
-			'original_size'  => '_tinify_original_size',
-			'processed_size' => '_tinify_processed_size',
-			'savings_pct'    => '_tinify_savings_pct',
-			'optimized_at'   => '_tinify_optimized_at',
+			'original_size'  => '_glassypic_original_size',
+			'processed_size' => '_glassypic_processed_size',
+			'savings_pct'    => '_glassypic_savings_pct',
+			'optimized_at'   => '_glassypic_optimized_at',
 			'alt_text'       => '_wp_attachment_image_alt',
 		];
 		foreach ($fields as $key => $metaKey) {

@@ -1,12 +1,12 @@
 <?php
 // tests/Unit/ApiClientTest.php
 declare(strict_types=1);
-namespace TinifyAI\Tests\Unit;
+namespace GlassyPic\Tests\Unit;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
-use TinifyAI\ApiClient;
+use GlassyPic\ApiClient;
 
 class ApiClientTest extends TestCase
 {
@@ -15,7 +15,7 @@ class ApiClientTest extends TestCase
 
     private function makeClient(): ApiClient
     {
-        return new ApiClient('tfy_live_testkey123', 'https://api.tinify.ai');
+        return new ApiClient('tfy_live_testkey123', 'https://api.glassypic.com');
     }
 
     public function test_verify_key_returns_tier_and_credits(): void
@@ -36,7 +36,7 @@ class ApiClientTest extends TestCase
 
     public function test_upload_returns_temp_file_id(): void
     {
-        $tmpFile = tempnam(sys_get_temp_dir(), 'tinify_test_');
+        $tmpFile = tempnam(sys_get_temp_dir(), 'glassypic_test_');
         file_put_contents($tmpFile, 'fake image data');
 
         Functions\expect('wp_generate_password')->once()->andReturn('testboundary123');

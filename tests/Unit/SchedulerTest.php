@@ -1,13 +1,13 @@
 <?php
 // tests/Unit/SchedulerTest.php
 declare(strict_types=1);
-namespace TinifyAI\Tests\Unit;
+namespace GlassyPic\Tests\Unit;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
-use TinifyAI\Scheduler;
-use TinifyAI\MetaManager;
+use GlassyPic\Scheduler;
+use GlassyPic\MetaManager;
 
 class SchedulerTest extends TestCase
 {
@@ -20,7 +20,7 @@ class SchedulerTest extends TestCase
         $meta->shouldReceive('getStatus')->with(42)->andReturn('completed');
 
         Functions\expect('as_schedule_single_action')->never();
-        Functions\expect('get_option')->with('tinify_auto_optimize', true)->andReturn(true);
+        Functions\expect('get_option')->with('glassypic_auto_optimize', true)->andReturn(true);
 
         $scheduler = new Scheduler($meta);
         $result    = $scheduler->queueOnUpload(['width' => 800], 42);
@@ -34,7 +34,7 @@ class SchedulerTest extends TestCase
         $meta->shouldReceive('getStatus')->with(42)->andReturn('processing');
 
         Functions\expect('as_schedule_single_action')->never();
-        Functions\expect('get_option')->with('tinify_auto_optimize', true)->andReturn(true);
+        Functions\expect('get_option')->with('glassypic_auto_optimize', true)->andReturn(true);
 
         $scheduler = new Scheduler($meta);
         $scheduler->queueOnUpload([], 42);
@@ -46,11 +46,11 @@ class SchedulerTest extends TestCase
         $meta->shouldReceive('getStatus')->with(42)->andReturn('');
         $meta->shouldReceive('setStatus')->with(42, 'pending')->once();
 
-        Functions\expect('get_option')->with('tinify_auto_optimize', true)->andReturn(true);
+        Functions\expect('get_option')->with('glassypic_auto_optimize', true)->andReturn(true);
         Functions\expect('get_post_mime_type')->with(42)->andReturn('image/jpeg');
         Functions\expect('as_schedule_single_action')
             ->once()
-            ->with(\Mockery::any(), 'tinify_ai/process_attachment', [42], 'tinify_ai');
+            ->with(\Mockery::any(), 'glassypic/process_attachment', [42], 'glassypic');
 
         $scheduler = new Scheduler($meta);
         $scheduler->queueOnUpload([], 42);
@@ -61,7 +61,7 @@ class SchedulerTest extends TestCase
         $meta = \Mockery::mock(MetaManager::class);
         $meta->shouldReceive('getStatus')->with(42)->andReturn('');
 
-        Functions\expect('get_option')->with('tinify_auto_optimize', true)->andReturn(true);
+        Functions\expect('get_option')->with('glassypic_auto_optimize', true)->andReturn(true);
         Functions\expect('get_post_mime_type')->with(42)->andReturn('application/pdf');
         Functions\expect('as_schedule_single_action')->never();
 

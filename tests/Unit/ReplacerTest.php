@@ -1,12 +1,12 @@
 <?php
 // tests/Unit/ReplacerTest.php
 declare(strict_types=1);
-namespace TinifyAI\Tests\Unit;
+namespace GlassyPic\Tests\Unit;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
-use TinifyAI\Replacer;
+use GlassyPic\Replacer;
 
 class ReplacerTest extends TestCase
 {
@@ -21,13 +21,13 @@ class ReplacerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageMatches('/path traversal/i');
 
-        $replacer = new Replacer(new \TinifyAI\MetaManager());
+        $replacer = new Replacer(new \GlassyPic\MetaManager());
         $replacer->swap(42, '/tmp/processed.jpg');
     }
 
     public function test_rejects_invalid_mime_type(): void
     {
-        $tmpFile = tempnam(sys_get_temp_dir(), 'tinify_test_');
+        $tmpFile = tempnam(sys_get_temp_dir(), 'glassypic_test_');
         file_put_contents($tmpFile, '<?php echo "evil"; ?>');
 
         Functions\expect('wp_upload_dir')->once()->andReturn(['basedir' => '/var/www/wp-content/uploads']);
@@ -38,7 +38,7 @@ class ReplacerTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageMatches('/MIME/i');
 
-        $replacer = new Replacer(new \TinifyAI\MetaManager());
+        $replacer = new Replacer(new \GlassyPic\MetaManager());
         $replacer->swap(42, $tmpFile);
 
         unlink($tmpFile);

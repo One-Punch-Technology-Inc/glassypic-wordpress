@@ -1,18 +1,18 @@
 <?php
 declare(strict_types=1);
-namespace TinifyAI;
+namespace GlassyPic;
 
 class ApiClient
 {
 	public function __construct(
 		private readonly string $apiKey,
-		private readonly string $baseUrl = 'https://api.tinify.ai'
+		private readonly string $baseUrl = 'https://api.glassypic.com'
 	) {}
 
 	private function authHeaders(): array {
 		return [
 			'Authorization' => 'Bearer ' . $this->apiKey,
-			'User-Agent'    => 'tinify-ai-wordpress/1.0.0',
+			'User-Agent'    => 'glassypic-wordpress/1.0.0',
 		];
 	}
 
@@ -95,7 +95,7 @@ class ApiClient
 		$payload = array_merge([ 'temp_file_ids' => [ $tempFileId ] ], $settings);
 		$result  = $this->post('/auto', $payload, [ 'Content-Type' => 'application/json' ]);
 		if ($result['code'] === 429) {
-			throw new \TinifyAI\Exception\InsufficientCreditsException(
+			throw new \GlassyPic\Exception\InsufficientCreditsException(
 				$result['data']['detail'] ?? 'Insufficient credits',
 				$result['data']['credits_reset_at'] ?? null
 			);

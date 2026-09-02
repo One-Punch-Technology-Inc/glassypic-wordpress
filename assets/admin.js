@@ -1,17 +1,17 @@
-/* global tinifyAi, jQuery */
+/* global glassyPic, jQuery */
 (function ($) {
     'use strict';
 
     // Single-image optimize button
-    $(document).on('click', '.tinify-optimize-single', function (e) {
+    $(document).on('click', '.glassypic-optimize-single', function (e) {
         e.preventDefault();
         var btn = $(this);
         var id  = btn.data('id');
         btn.prop('disabled', true).text('Queuing…');
 
-        $.post(tinifyAi.ajaxUrl, {
-            action:        'tinify_optimize_single',
-            nonce:         tinifyAi.nonce,
+        $.post(glassyPic.ajaxUrl, {
+            action:        'glassypic_optimize_single',
+            nonce:         glassyPic.nonce,
             attachment_id: id,
         }).done(function () {
             btn.text('Queued ✓');
@@ -21,17 +21,17 @@
     });
 
     // Restore original button
-    $(document).on('click', '.tinify-restore-original', function (e) {
+    $(document).on('click', '.glassypic-restore-original', function (e) {
         e.preventDefault();
         // eslint-disable-next-line no-alert
-        if ( ! window.confirm(tinifyAi.restoreConfirm)) { return; }
+        if ( ! window.confirm(glassyPic.restoreConfirm)) { return; }
         var btn = $(this);
         var id  = btn.data('id');
         btn.prop('disabled', true).text('Restoring…');
 
-        $.post(tinifyAi.ajaxUrl, {
-            action:        'tinify_restore_original',
-            nonce:         tinifyAi.nonce,
+        $.post(glassyPic.ajaxUrl, {
+            action:        'glassypic_restore_original',
+            nonce:         glassyPic.nonce,
             attachment_id: id,
         }).done(function () {
             btn.closest('.misc-pub-section').html('<em>Restored ✓ — refresh to see original</em>');
@@ -48,37 +48,37 @@
         var done  = data.completed;
         var total = data.total;
         var pct   = total > 0 ? Math.round((done / total) * 100) : 0;
-        $('#tinify-progress').attr({ value: done, max: total });
-        $('#tinify-progress-text').text(done + ' / ' + total + ' optimized (' + pct + '%)');
+        $('#glassypic-progress').attr({ value: done, max: total });
+        $('#glassypic-progress-text').text(done + ' / ' + total + ' optimized (' + pct + '%)');
         if (data.pending === 0 && data.processing === 0 && bulkRunning) {
             clearInterval(pollInterval);
             bulkRunning = false;
-            $('#tinify-bulk-start').prop('disabled', false).text('All done ✓');
+            $('#glassypic-bulk-start').prop('disabled', false).text('All done ✓');
         }
     }
 
     function startPolling() {
         clearInterval(pollInterval);
         pollInterval = setInterval(function () {
-            $.post(tinifyAi.ajaxUrl, { action: 'tinify_bulk_status', nonce: tinifyAi.nonce })
+            $.post(glassyPic.ajaxUrl, { action: 'glassypic_bulk_status', nonce: glassyPic.nonce })
              .done(function (res) { if (res.success) updateProgress(res.data); });
         }, 3000);
     }
 
-    $('#tinify-bulk-start').on('click', function () {
+    $('#glassypic-bulk-start').on('click', function () {
         var btn = $(this);
         btn.prop('disabled', true).text('Starting…');
-        $('#tinify-progress-bar').show();
+        $('#glassypic-progress-bar').show();
         bulkRunning = true;
 
-        $.post(tinifyAi.ajaxUrl, { action: 'tinify_bulk_queue', nonce: tinifyAi.nonce, retry_failed: 0 })
+        $.post(glassyPic.ajaxUrl, { action: 'glassypic_bulk_queue', nonce: glassyPic.nonce, retry_failed: 0 })
          .done(function (res) {
              if (res.success) { startPolling(); btn.text('Optimizing…'); }
          });
     });
 
-    $('#tinify-bulk-retry').on('click', function () {
-        $.post(tinifyAi.ajaxUrl, { action: 'tinify_bulk_queue', nonce: tinifyAi.nonce, retry_failed: 1 })
+    $('#glassypic-bulk-retry').on('click', function () {
+        $.post(glassyPic.ajaxUrl, { action: 'glassypic_bulk_queue', nonce: glassyPic.nonce, retry_failed: 1 })
          .done(function (res) { if (res.success) { bulkRunning = true; startPolling(); } });
     });
 

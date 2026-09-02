@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace TinifyAI;
+namespace GlassyPic;
 
 class MediaLibrary
 {
@@ -11,42 +11,42 @@ class MediaLibrary
 	) {}
 
 	public function addStatusColumn( array $columns ): array {
-		$columns['tinify_ai'] = esc_html__('tinify.ai', 'tinify-ai');
+		$columns['glassypic'] = esc_html__('GlassyPic', 'glassypic');
 		return $columns;
 	}
 
 	public function renderStatusColumn( string $column, int $attachmentId ): void {
-		if ($column !== 'tinify_ai') {
+		if ($column !== 'glassypic') {
 			return;
 		}
 
 		$status = $this->meta->getStatus($attachmentId);
 		switch ($status) {
 			case 'completed':
-				$pct = get_post_meta($attachmentId, '_tinify_savings_pct', true);
+				$pct = get_post_meta($attachmentId, '_glassypic_savings_pct', true);
 				/* translators: %s: percentage of file size reduction */
-				echo '<span class="tinify-status tinify-done">'
-					. esc_html(sprintf(__('✓ %s%% smaller', 'tinify-ai'), round( (float) $pct, 1))) // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+				echo '<span class="glassypic-status glassypic-done">'
+					. esc_html(sprintf(__('✓ %s%% smaller', 'glassypic'), round( (float) $pct, 1))) // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
 					. '</span>';
 				break;
 			case 'processing':
 			case 'pending':
-				echo '<span class="tinify-status tinify-processing">'
-					. esc_html__('⟳ Processing…', 'tinify-ai') . '</span>';
+				echo '<span class="glassypic-status glassypic-processing">'
+					. esc_html__('⟳ Processing…', 'glassypic') . '</span>';
 				break;
 			case 'failed':
 				printf(
-					'<span class="tinify-status tinify-failed">%s</span> <button class="button button-small tinify-optimize-single" data-id="%d">%s</button>',
-					esc_html__('✕ Failed', 'tinify-ai'),
+					'<span class="glassypic-status glassypic-failed">%s</span> <button class="button button-small glassypic-optimize-single" data-id="%d">%s</button>',
+					esc_html__('✕ Failed', 'glassypic'),
 					absint($attachmentId),
-					esc_html__('Retry', 'tinify-ai')
+					esc_html__('Retry', 'glassypic')
 				);
 				break;
 			default:
 				printf(
-					'<span class="tinify-status tinify-none">— </span><button class="button button-small tinify-optimize-single" data-id="%d">%s</button>',
+					'<span class="glassypic-status glassypic-none">— </span><button class="button button-small glassypic-optimize-single" data-id="%d">%s</button>',
 					absint($attachmentId),
-					esc_html__('Optimize', 'tinify-ai')
+					esc_html__('Optimize', 'glassypic')
 				);
 		}
 	}
@@ -58,37 +58,37 @@ class MediaLibrary
 		}
 		$id         = $post->ID;
 		$status     = $this->meta->getStatus($id);
-		$origSize   = get_post_meta($id, '_tinify_original_size', true);
-		$procSize   = get_post_meta($id, '_tinify_processed_size', true);
-		$backupPath = get_post_meta($id, '_tinify_orig_backup', true);
+		$origSize   = get_post_meta($id, '_glassypic_original_size', true);
+		$procSize   = get_post_meta($id, '_glassypic_processed_size', true);
+		$backupPath = get_post_meta($id, '_glassypic_orig_backup', true);
 		?>
-		<div class="misc-pub-section tinify-panel">
-			<strong><?php esc_html_e('tinify.ai', 'tinify-ai'); ?></strong><br>
+		<div class="misc-pub-section glassypic-panel">
+			<strong><?php esc_html_e('GlassyPic', 'glassypic'); ?></strong><br>
 			<?php if ($status === 'completed') : ?>
-				<?php esc_html_e('Status: Optimized ✓', 'tinify-ai'); ?><br>
+				<?php esc_html_e('Status: Optimized ✓', 'glassypic'); ?><br>
 				<?php if ($origSize && $procSize) : ?>
 					<?php
 					/* translators: 1: original file size, 2: optimized file size */
-					printf(esc_html__('%1$s → %2$s', 'tinify-ai'),
+					printf(esc_html__('%1$s → %2$s', 'glassypic'),
 						esc_html(size_format( (int) $origSize)),
 						esc_html(size_format( (int) $procSize)));
 					?>
 						<br>
 				<?php endif; ?>
-				<button class="button button-small tinify-optimize-single" data-id="<?php echo absint($id); ?>">
-					<?php esc_html_e('Re-optimize', 'tinify-ai'); ?>
+				<button class="button button-small glassypic-optimize-single" data-id="<?php echo absint($id); ?>">
+					<?php esc_html_e('Re-optimize', 'glassypic'); ?>
 				</button>
 				<?php if ($backupPath && file_exists($backupPath)) : ?>
 				<br>
-				<button class="button button-small tinify-restore-original" data-id="<?php echo absint($id); ?>" style="margin-top:4px;">
-					<?php esc_html_e('Restore Original', 'tinify-ai'); ?>
+				<button class="button button-small glassypic-restore-original" data-id="<?php echo absint($id); ?>" style="margin-top:4px;">
+					<?php esc_html_e('Restore Original', 'glassypic'); ?>
 				</button>
 				<?php endif; ?>
 			<?php elseif (in_array($status, [ 'processing', 'pending' ], true)) : ?>
-				<?php esc_html_e('Status: Processing…', 'tinify-ai'); ?>
+				<?php esc_html_e('Status: Processing…', 'glassypic'); ?>
 			<?php else : ?>
-				<button class="button button-small tinify-optimize-single" data-id="<?php echo absint($id); ?>">
-					<?php esc_html_e('Optimize', 'tinify-ai'); ?>
+				<button class="button button-small glassypic-optimize-single" data-id="<?php echo absint($id); ?>">
+					<?php esc_html_e('Optimize', 'glassypic'); ?>
 				</button>
 			<?php endif; ?>
 		</div>
@@ -96,7 +96,7 @@ class MediaLibrary
 	}
 
 	public function handleAjaxOptimizeSingle(): void {
-		check_ajax_referer('tinify_ajax', 'nonce');
+		check_ajax_referer('glassypic_ajax', 'nonce');
 		if ( ! current_user_can('upload_files')) {
 			wp_die(-1);
 		}
@@ -113,7 +113,7 @@ class MediaLibrary
 	}
 
 	public function handleAjaxRestoreOriginal(): void {
-		check_ajax_referer('tinify_ajax', 'nonce');
+		check_ajax_referer('glassypic_ajax', 'nonce');
 		if ( ! current_user_can('upload_files')) {
 			wp_die(-1);
 		}
@@ -124,7 +124,7 @@ class MediaLibrary
 			return;
 		}
 
-		$backupPath = get_post_meta($attachmentId, '_tinify_orig_backup', true);
+		$backupPath = get_post_meta($attachmentId, '_glassypic_orig_backup', true);
 		$destPath   = get_attached_file($attachmentId);
 
 		if ( ! $backupPath || ! $destPath || ! file_exists($backupPath)) {

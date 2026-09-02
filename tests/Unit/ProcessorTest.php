@@ -1,13 +1,13 @@
 <?php
 // tests/Unit/ProcessorTest.php
 declare(strict_types=1);
-namespace TinifyAI\Tests\Unit;
+namespace GlassyPic\Tests\Unit;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
-use TinifyAI\{Processor, ApiClient, MetaManager, Replacer, Scheduler, Settings};
-use TinifyAI\Exception\InsufficientCreditsException;
+use GlassyPic\{Processor, ApiClient, MetaManager, Replacer, Scheduler, Settings};
+use GlassyPic\Exception\InsufficientCreditsException;
 
 class ProcessorTest extends TestCase
 {
@@ -33,7 +33,7 @@ class ProcessorTest extends TestCase
 		Functions\expect('get_attached_file')->with(42)->andReturn('/uploads/photo.jpg');
 		Functions\when('file_exists')->justReturn(true);
 		Functions\when('filesize')->justReturn(100000);
-		Functions\when('wp_tempnam')->justReturn('/tmp/tinify_out.jpg');
+		Functions\when('wp_tempnam')->justReturn('/tmp/glassypic_out.jpg');
 		Functions\when('file_put_contents')->justReturn(1000);
 
 		$api->shouldReceive('upload')->once()->andReturn('tmp-abc');
@@ -66,7 +66,7 @@ class ProcessorTest extends TestCase
 		Functions\expect('get_attached_file')->with(42)->andReturn('/uploads/photo.jpg');
 		Functions\when('file_exists')->justReturn(true);
 		Functions\when('filesize')->justReturn(100000);
-		Functions\when('wp_tempnam')->justReturn('/tmp/tinify_out.jpg');
+		Functions\when('wp_tempnam')->justReturn('/tmp/glassypic_out.jpg');
 		Functions\when('file_put_contents')->justReturn(1000);
 
 		$api->shouldReceive('upload')->andReturn('tmp-abc');
@@ -173,7 +173,7 @@ class ProcessorTest extends TestCase
 		Functions\expect('get_attached_file')->with(42)->andReturn('/uploads/photo.jpg');
 		Functions\when('file_exists')->justReturn(true);
 		Functions\when('filesize')->justReturn(100000);
-		Functions\when('wp_tempnam')->justReturn('/tmp/tinify_out.jpg');
+		Functions\when('wp_tempnam')->justReturn('/tmp/glassypic_out.jpg');
 		Functions\when('file_put_contents')->justReturn(1000);
 
 		// Existing job_id — skip upload + process phases

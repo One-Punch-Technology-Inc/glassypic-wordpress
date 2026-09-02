@@ -1,12 +1,12 @@
 <?php
 // tests/Unit/MetaManagerTest.php
 declare(strict_types=1);
-namespace TinifyAI\Tests\Unit;
+namespace GlassyPic\Tests\Unit;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
-use TinifyAI\MetaManager;
+use GlassyPic\MetaManager;
 
 class MetaManagerTest extends TestCase
 {
@@ -16,7 +16,7 @@ class MetaManagerTest extends TestCase
     public function test_get_status_returns_pending(): void
     {
         Functions\expect('get_post_meta')
-            ->once()->with(42, '_tinify_status', true)->andReturn('pending');
+            ->once()->with(42, '_glassypic_status', true)->andReturn('pending');
 
         $manager = new MetaManager();
         self::assertSame('pending', $manager->getStatus(42));
@@ -25,7 +25,7 @@ class MetaManagerTest extends TestCase
     public function test_set_status_calls_update_post_meta(): void
     {
         Functions\expect('update_post_meta')
-            ->once()->with(42, '_tinify_status', 'processing');
+            ->once()->with(42, '_glassypic_status', 'processing');
 
         $manager = new MetaManager();
         $manager->setStatus(42, 'processing');
@@ -50,7 +50,7 @@ class MetaManagerTest extends TestCase
     public function test_get_status_returns_empty_string_when_not_set(): void
     {
         Functions\expect('get_post_meta')
-            ->once()->with(99, '_tinify_status', true)->andReturn('');
+            ->once()->with(99, '_glassypic_status', true)->andReturn('');
 
         $manager = new MetaManager();
         self::assertSame('', $manager->getStatus(99));
