@@ -160,10 +160,7 @@ class Processor
 			}
 			try {
 				$tempFileId = $this->api->upload($thumbPath);
-				$jobId      = $this->api->process($tempFileId, [
-					'job_source'    => 'wordpress', // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
-					'output_format' => 'original',
-				]);
+				$jobId      = $this->api->process($tempFileId, [ 'output_format' => 'original' ]);
 				$this->pollUntilDone($jobId);
 				$content = $this->api->downloadProcessedFile($jobId);
 				$tmpPath = wp_tempnam('glassypic_thumb_');
