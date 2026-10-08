@@ -58,38 +58,21 @@ class ProcessorTest extends TestCase
 		$processor->run(42);
 	}
 
-	public function test_run_sends_correct_job_source(): void
+	public function test_run_marks_failed_when_job_expires(): void
 	{
 		['api' => $api, 'meta' => $meta, 'replacer' => $replacer,
 		 'scheduler' => $scheduler, 'settings' => $settings] = $this->makeMocks();
 
 		Functions\expect('get_attached_file')->with(42)->andReturn('/uploads/photo.jpg');
 		Functions\when('file_exists')->justReturn(true);
-		Functions\when('filesize')->justReturn(100000);
-		Functions\when('wp_tempnam')->justReturn('/tmp/glassypic_out.jpg');
-		Functions\when('file_put_contents')->justReturn(1000);
 
-		$api->shouldReceive('upload')->andReturn('tmp-abc');
-		$api->shouldReceive('process')
-			->once()
-			->with('tmp-abc', \Mockery::on(function ( array $settings ): bool {
-				return $settings['job_source'] === 'wordpress';
-			}))
-			->andReturn('job-xyz');
-		$api->shouldReceive('pollJob')->andReturn(
-			['status' => 'completed', 'processed_size' => 32000]
-		);
-		$api->shouldReceive('downloadProcessedFile')->andReturn('data');
+		$api->shouldReceive('pollJob')->once()->andReturn([ 'status' => 'expired' ]);
+		$api->shouldReceive('downloadProcessedFile')->never();
 
-		$meta->shouldReceive('getJobId')->with(42)->andReturn(null);
-		$meta->shouldReceive('setStatus')->with(42, 'processing');
-		$meta->shouldReceive('setJobId')->with(42, 'job-xyz');
-		$meta->shouldReceive('saveResults');
-
-		$replacer->shouldReceive('swap');
-		$settings->shouldReceive('getPipelineSettings')->andReturn([]);
-		$settings->shouldReceive('isSeoAltTextEnabled')->andReturn(false);
-		$settings->shouldReceive('isOptimizeThumbnails')->andReturn(false);
+		$meta->shouldReceive('getJobId')->with(42)->andReturn('job-xyz');
+		$meta->shouldReceive('setStatus')->with(42, 'processing')->once();
+		$meta->shouldReceive('setError')->with(42, \Mockery::pattern('/expired/'))->once();
+		$scheduler->shouldReceive('rescheduleAt')->never();
 
 		$processor = new Processor($api, $meta, $replacer, $scheduler, $settings);
 		$processor->run(42);

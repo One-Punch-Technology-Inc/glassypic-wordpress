@@ -37,8 +37,7 @@ class Processor
 				$tempFileId = $this->uploadWithRetry($filePath);
 
 				// Phase 2: Process
-				$pipelineSettings               = $this->settings->getPipelineSettings();
-				$pipelineSettings['job_source'] = 'wordpress'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- API requires lowercase
+				$pipelineSettings = $this->settings->getPipelineSettings();
 				if ($this->settings->isSeoAltTextEnabled()) {
 					$pipelineSettings['output_seo_tag_gen'] = true;
 					$pipelineSettings['output_seo_rename']  = false;
@@ -112,6 +111,9 @@ class Processor
 			}
 			if ($job['status'] === 'failed') {
 				throw new \RuntimeException('Processing failed: ' . ( $job['error_message'] ?? 'unknown error' ));
+			}
+			if ($job['status'] === 'expired') {
+				throw new \RuntimeException('Processing job expired before completion');
 			}
 			sleep(self::POLL_INTERVAL_SECONDS);
 		}

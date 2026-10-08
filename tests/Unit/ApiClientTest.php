@@ -7,6 +7,7 @@ use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 use GlassyPic\ApiClient;
+use GlassyPic\Exception\InsufficientCreditsException;
 
 class ApiClientTest extends TestCase
 {
@@ -52,6 +53,63 @@ class ApiClientTest extends TestCase
         self::assertSame('tmp-abc123', $tempFileId);
 
         unlink($tmpFile);
+    }
+
+    private function stubPost(int $code, string $body, ?callable $assertArgs = null): void
+    {
+        Functions\expect('wp_json_encode')->once()->andReturnUsing(fn($data) => json_encode($data));
+        $post = Functions\expect('wp_safe_remote_post')->once();
+        if ($assertArgs) {
+            $post->with('https://api.glassypic.com/auto', \Mockery::on($assertArgs));
+        }
+        $post->andReturn(['response' => ['code' => $code], 'body' => $body]);
+        Functions\expect('is_wp_error')->once()->andReturn(false);
+        Functions\expect('wp_remote_retrieve_response_code')->once()->andReturn($code);
+        Functions\expect('wp_remote_retrieve_body')->once()->andReturn($body);
+    }
+
+    public function test_process_nests_settings_and_returns_first_job_id(): void
+    {
+        // Shape of ProcessFilesRequest / ProcessFilesResponse in services/api/app/models/job.py
+        $this->stubPost(
+            200,
+            '{"success":true,"jobs":[{"id":"job-xyz","temp_file_id":"tmp-abc","status":"queued"}],"credits_used":4,"credits_remaining":26}',
+            function (array $args): bool {
+                $payload = json_decode($args['body'], true);
+                return $payload['temp_file_ids'] === ['tmp-abc']
+                    && $payload['settings'] === ['output_format' => 'webp', 'output_seo_tag_gen' => true]
+                    && ! array_key_exists('output_format', $payload);
+            }
+        );
+
+        $jobId = $this->makeClient()->process('tmp-abc', ['output_format' => 'webp', 'output_seo_tag_gen' => true]);
+        self::assertSame('job-xyz', $jobId);
+    }
+
+    public function test_process_throws_insufficient_credits_on_402(): void
+    {
+        $this->stubPost(402, '{"detail":"Insufficient credits. Need 4, have 0.","credits_reset_at":"2026-10-09T00:00:00Z"}');
+
+        try {
+            $this->makeClient()->process('tmp-abc', []);
+            self::fail('Expected InsufficientCreditsException');
+        } catch (InsufficientCreditsException $e) {
+            self::assertSame('2026-10-09T00:00:00Z', $e->creditsResetAt);
+        }
+    }
+
+    public function test_poll_job_unwraps_job_object(): void
+    {
+        // Shape of StatusResponse in services/api/app/models/job.py
+        $body = '{"success":true,"job":{"id":"job-xyz","status":"completed","processed_size":32000,"seo_alt_text":"A cat"}}';
+        Functions\expect('wp_safe_remote_get')->once()->andReturn(['response' => ['code' => 200], 'body' => $body]);
+        Functions\expect('is_wp_error')->once()->andReturn(false);
+        Functions\expect('wp_remote_retrieve_response_code')->once()->andReturn(200);
+        Functions\expect('wp_remote_retrieve_body')->once()->andReturn($body);
+
+        $job = $this->makeClient()->pollJob('job-xyz');
+        self::assertSame('completed', $job['status']);
+        self::assertSame('A cat', $job['seo_alt_text']);
     }
 
     public function test_throws_on_wp_error(): void
