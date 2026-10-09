@@ -8,8 +8,12 @@ use GlassyPic\Exception\PollTimeoutException;
 class Processor
 {
 	private const POLL_INTERVAL_SECONDS = 3;
-	private const POLL_MAX_SECONDS      = 300;
-	private const MAX_RETRIES           = 3;
+	// Stay well inside the ~30s PHP/ActionScheduler limit common on shared hosts;
+	// unfinished jobs resume from the stored job_id in a later action.
+	private const POLL_MAX_SECONDS     = 20;
+	private const RESUME_DELAY_SECONDS = 30;
+	private const MAX_POLL_RESUMES     = 60; // ~30 min of resumes before giving up
+	private const MAX_RETRIES          = 3;
 
 	public function __construct(
 		private readonly ApiClient $api,
@@ -37,8 +41,7 @@ class Processor
 				$tempFileId = $this->uploadWithRetry($filePath);
 
 				// Phase 2: Process
-				$pipelineSettings               = $this->settings->getPipelineSettings();
-				$pipelineSettings['job_source'] = 'wordpress'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- API requires lowercase
+				$pipelineSettings = $this->settings->getPipelineSettings();
 				if ($this->settings->isSeoAltTextEnabled()) {
 					$pipelineSettings['output_seo_tag_gen'] = true;
 					$pipelineSettings['output_seo_rename']  = false;
@@ -84,7 +87,11 @@ class Processor
 
 		} catch (PollTimeoutException $e) {
 			// Leave status as 'processing'; job_id is stored — next run resumes from polling
-			$this->scheduler->rescheduleAt($attachmentId, new \DateTimeImmutable('+5 minutes'));
+			if ($this->meta->incrementPollResumes($attachmentId) > self::MAX_POLL_RESUMES) {
+				$this->meta->setError($attachmentId, 'Processing did not finish in time');
+			} else {
+				$this->scheduler->rescheduleAt($attachmentId, new \DateTimeImmutable('+' . self::RESUME_DELAY_SECONDS . ' seconds'));
+			}
 
 		} catch (\Throwable $e) {
 			$this->meta->setError($attachmentId, $e->getMessage());
@@ -112,6 +119,9 @@ class Processor
 			}
 			if ($job['status'] === 'failed') {
 				throw new \RuntimeException('Processing failed: ' . ( $job['error_message'] ?? 'unknown error' ));
+			}
+			if ($job['status'] === 'expired') {
+				throw new \RuntimeException('Processing job expired before completion');
 			}
 			sleep(self::POLL_INTERVAL_SECONDS);
 		}
@@ -158,10 +168,7 @@ class Processor
 			}
 			try {
 				$tempFileId = $this->api->upload($thumbPath);
-				$jobId      = $this->api->process($tempFileId, [
-					'job_source'    => 'wordpress', // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
-					'output_format' => 'original',
-				]);
+				$jobId      = $this->api->process($tempFileId, [ 'output_format' => 'original' ]);
 				$this->pollUntilDone($jobId);
 				$content = $this->api->downloadProcessedFile($jobId);
 				$tmpPath = wp_tempnam('glassypic_thumb_');

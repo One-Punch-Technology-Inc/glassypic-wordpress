@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  unit:
+    name: Unit + lint (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.1', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+      - run: composer install --no-interaction --no-progress
+      - run: vendor/bin/phpunit --testdox
+      - run: vendor/bin/phpcs --standard=phpcs.xml.dist src/ uninstall.php
+
+  e2e:
+    name: End-to-end (WordPress ${{ matrix.wp }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        wp: ['7.1.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: gd, pdo_sqlite, zip
+          tools: composer:v2
+      - run: composer install --no-interaction --no-progress
+      - uses: actions/cache@v4
+        with:
+          path: .e2e
+          key: e2e-wp-${{ matrix.wp }}-sqlite-v3.1.0-wpcli-2.12.0
+      - run: bash tests/e2e/run.sh
+        env:
+          WP_VERSION: ${{ matrix.wp }}

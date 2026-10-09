@@ -21,6 +21,11 @@ class Settings
 		if ($trimmed === '' || str_contains($trimmed, '•')) {
 			return get_option('glassypic_api_key', '');
 		}
+		// Already encrypted: on the first save update_option() falls through to add_option(),
+		// which runs this callback a second time on the value we just encrypted.
+		if (str_starts_with($this->decryptKey($trimmed), 'tfy_live_')) {
+			return $trimmed;
+		}
 		if ( ! str_starts_with($trimmed, 'tfy_live_')) {
 			add_settings_error('glassypic', 'invalid_key', esc_html__('API key must start with tfy_live_', 'glassypic'));
 			return get_option('glassypic_api_key', '');
@@ -233,7 +238,7 @@ class Settings
 	private function decryptKey( string $stored ): string {
 		$decoded = base64_decode($stored); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		$parts   = explode('::', $decoded, 2);
-		if (count($parts) < 2) {
+		if (count($parts) < 2 || strlen($parts[0]) !== 16) {
 			return '';
 		}
 		[$iv, $data] = $parts;

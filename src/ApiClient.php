@@ -92,26 +92,30 @@ class ApiClient
 	}
 
 	public function process( string $tempFileId, array $settings ): string {
-		$payload = array_merge([ 'temp_file_ids' => [ $tempFileId ] ], $settings);
+		$payload = [
+			'temp_file_ids' => [ $tempFileId ],
+			'settings'      => $settings,
+		];
 		$result  = $this->post('/auto', $payload, [ 'Content-Type' => 'application/json' ]);
-		if ($result['code'] === 429) {
+		// 402 when x402 pay-per-use is configured, 429 otherwise; both carry credits_reset_at
+		if ($result['code'] === 402 || $result['code'] === 429) {
 			throw new \GlassyPic\Exception\InsufficientCreditsException(
 				$result['data']['detail'] ?? 'Insufficient credits',
 				$result['data']['credits_reset_at'] ?? null
 			);
 		}
-		if ($result['code'] !== 200 || empty($result['data'][0]['id'])) {
+		if ($result['code'] !== 200 || empty($result['data']['jobs'][0]['id'])) {
 			throw new \RuntimeException('Processing failed (HTTP ' . $result['code'] . ')');
 		}
-		return $result['data'][0]['id'];
+		return $result['data']['jobs'][0]['id'];
 	}
 
 	public function pollJob( string $jobId ): array {
 		$result = $this->get('/status/' . $jobId);
-		if ($result['code'] !== 200) {
+		if ($result['code'] !== 200 || ! is_array($result['data']['job'] ?? null)) {
 			throw new \RuntimeException('Poll failed (HTTP ' . $result['code'] . ')');
 		}
-		return $result['data'];
+		return $result['data']['job'];
 	}
 
 	public function downloadProcessedFile( string $jobId ): string {
