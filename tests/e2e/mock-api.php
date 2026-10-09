@@ -46,6 +46,10 @@ add_filter('pre_http_request', function ( $pre, $args, $url ) {
 	};
 
 	if ($method === 'GET' && $path === '/api-keys/verify') {
+		// Backend accepts only gp_live_ keys (middleware/auth.py API_KEY_PREFIX)
+		if ( ! str_starts_with($entry['auth'] ?? '', 'Bearer gp_live_')) {
+			return $json(401, [ 'detail' => 'Authentication required' ]);
+		}
 		return $json(200, [ 'valid' => true, 'tier' => 'pro', 'credits_remaining' => 3300, 'credits_limit' => 3300 ]);
 	}
 
