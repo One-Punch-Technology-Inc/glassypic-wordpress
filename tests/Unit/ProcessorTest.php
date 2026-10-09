@@ -123,7 +123,7 @@ class ProcessorTest extends TestCase
 		Functions\expect('get_attached_file')->with(42)->andReturn('/uploads/photo.jpg');
 		Functions\when('file_exists')->justReturn(true);
 
-		// time(): first call sets deadline to 0+300=300; second call returns 1000 (loop exits)
+		// time(): first call sets deadline to 0+20=20; second call returns 1000 (loop exits)
 		$timeCall = 0;
 		Functions\when('time')->alias(function () use (&$timeCall) {
 			$timeCall++;
@@ -137,12 +137,39 @@ class ProcessorTest extends TestCase
 
 		$api->shouldReceive('upload')->once()->andReturn('tmp-abc');
 		$api->shouldReceive('process')->once()->andReturn('job-xyz');
-		// Loop exits immediately without entering body (1000 < 300 is false)
+		// Loop exits immediately without entering body (1000 < 20 is false)
 
 		$settings->shouldReceive('getPipelineSettings')->andReturn([]);
 		$settings->shouldReceive('isSeoAltTextEnabled')->andReturn(false);
 
-		$scheduler->shouldReceive('rescheduleAt')->once();
+		$meta->shouldReceive('incrementPollResumes')->with(42)->once()->andReturn(1);
+		$scheduler->shouldReceive('rescheduleAt')
+			->once()
+			->with(42, \Mockery::on(fn( \DateTimeImmutable $when ) => $when->getTimestamp() - \time() <= 60));
+
+		$processor = new Processor($api, $meta, $replacer, $scheduler, $settings);
+		$processor->run(42);
+	}
+
+	public function test_run_fails_after_max_poll_resumes(): void
+	{
+		['api' => $api, 'meta' => $meta, 'replacer' => $replacer,
+		 'scheduler' => $scheduler, 'settings' => $settings] = $this->makeMocks();
+
+		Functions\expect('get_attached_file')->with(42)->andReturn('/uploads/photo.jpg');
+		Functions\when('file_exists')->justReturn(true);
+
+		$timeCall = 0;
+		Functions\when('time')->alias(function () use (&$timeCall) {
+			$timeCall++;
+			return $timeCall === 1 ? 0 : 1000;
+		});
+
+		$meta->shouldReceive('getJobId')->with(42)->andReturn('job-stuck');
+		$meta->shouldReceive('setStatus')->with(42, 'processing')->once();
+		$meta->shouldReceive('incrementPollResumes')->with(42)->once()->andReturn(61);
+		$meta->shouldReceive('setError')->with(42, \Mockery::pattern('/did not finish/'))->once();
+		$scheduler->shouldReceive('rescheduleAt')->never();
 
 		$processor = new Processor($api, $meta, $replacer, $scheduler, $settings);
 		$processor->run(42);

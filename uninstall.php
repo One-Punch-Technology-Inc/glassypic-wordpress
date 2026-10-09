@@ -33,6 +33,7 @@ foreach ($backup_paths as $backup_path) {
 $meta_keys = [
 	'_glassypic_status',
 	'_glassypic_job_id',
+	'_glassypic_poll_resumes',
 	'_glassypic_original_size',
 	'_glassypic_processed_size',
 	'_glassypic_savings_pct',

@@ -8,8 +8,12 @@ use GlassyPic\Exception\PollTimeoutException;
 class Processor
 {
 	private const POLL_INTERVAL_SECONDS = 3;
-	private const POLL_MAX_SECONDS      = 300;
-	private const MAX_RETRIES           = 3;
+	// Stay well inside the ~30s PHP/ActionScheduler limit common on shared hosts;
+	// unfinished jobs resume from the stored job_id in a later action.
+	private const POLL_MAX_SECONDS     = 20;
+	private const RESUME_DELAY_SECONDS = 30;
+	private const MAX_POLL_RESUMES     = 60; // ~30 min of resumes before giving up
+	private const MAX_RETRIES          = 3;
 
 	public function __construct(
 		private readonly ApiClient $api,
@@ -83,7 +87,11 @@ class Processor
 
 		} catch (PollTimeoutException $e) {
 			// Leave status as 'processing'; job_id is stored — next run resumes from polling
-			$this->scheduler->rescheduleAt($attachmentId, new \DateTimeImmutable('+5 minutes'));
+			if ($this->meta->incrementPollResumes($attachmentId) > self::MAX_POLL_RESUMES) {
+				$this->meta->setError($attachmentId, 'Processing did not finish in time');
+			} else {
+				$this->scheduler->rescheduleAt($attachmentId, new \DateTimeImmutable('+' . self::RESUME_DELAY_SECONDS . ' seconds'));
+			}
 
 		} catch (\Throwable $e) {
 			$this->meta->setError($attachmentId, $e->getMessage());

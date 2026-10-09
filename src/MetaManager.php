@@ -14,6 +14,7 @@ class MetaManager
 		update_post_meta($attachmentId, self::PREFIX . 'status', $status);
 		if ($status === 'pending') {
 			delete_post_meta($attachmentId, self::PREFIX . 'job_id');
+			delete_post_meta($attachmentId, self::PREFIX . 'poll_resumes');
 		}
 	}
 
@@ -24,6 +25,12 @@ class MetaManager
 
 	public function setJobId( int $attachmentId, string $jobId ): void {
 		update_post_meta($attachmentId, self::PREFIX . 'job_id', $jobId);
+	}
+
+	public function incrementPollResumes( int $attachmentId ): int {
+		$count = (int) get_post_meta($attachmentId, self::PREFIX . 'poll_resumes', true) + 1;
+		update_post_meta($attachmentId, self::PREFIX . 'poll_resumes', $count);
+		return $count;
 	}
 
 	public function setError( int $attachmentId, string $message ): void {
@@ -58,6 +65,7 @@ class MetaManager
 		$keys = [
 			self::PREFIX . 'status',
 			self::PREFIX . 'job_id',
+			self::PREFIX . 'poll_resumes',
 			self::PREFIX . 'original_size',
 			self::PREFIX . 'processed_size',
 			self::PREFIX . 'savings_pct',

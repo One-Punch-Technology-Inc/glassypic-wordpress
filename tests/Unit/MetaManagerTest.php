@@ -55,4 +55,25 @@ class MetaManagerTest extends TestCase
         $manager = new MetaManager();
         self::assertSame('', $manager->getStatus(99));
     }
+
+    public function test_increment_poll_resumes_counts_up(): void
+    {
+        Functions\expect('get_post_meta')
+            ->once()->with(42, '_glassypic_poll_resumes', true)->andReturn('2');
+        Functions\expect('update_post_meta')
+            ->once()->with(42, '_glassypic_poll_resumes', 3);
+
+        $manager = new MetaManager();
+        self::assertSame(3, $manager->incrementPollResumes(42));
+    }
+
+    public function test_set_status_pending_clears_job_and_resume_counter(): void
+    {
+        Functions\expect('update_post_meta')->once()->with(42, '_glassypic_status', 'pending');
+        Functions\expect('delete_post_meta')->once()->with(42, '_glassypic_job_id');
+        Functions\expect('delete_post_meta')->once()->with(42, '_glassypic_poll_resumes');
+
+        $manager = new MetaManager();
+        $manager->setStatus(42, 'pending');
+    }
 }

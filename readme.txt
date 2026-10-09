@@ -2,7 +2,7 @@
 Contributors: glassypic
 Tags: image optimization, compress images, webp, avif, alt text
 Requires at least: 6.0
-Tested up to: 6.7
+Tested up to: 7.1
 Requires PHP: 8.1
 Stable tag: 1.0.0
 License: GPL-2.0-only
@@ -14,12 +14,12 @@ AI image optimizer: upscale with Real-ESRGAN, apply perceptual compression, conv
 
 **GlassyPic** is the only WordPress image optimization plugin that combines AI upscaling, smart compression, modern format conversion, and automatic SEO alt text generation in a single automated background workflow.
 
-Every image you upload is automatically sent through a four-stage AI pipeline:
+Every image you upload is automatically sent through the GlassyPic pipeline. Each stage runs only when it is needed:
 
-1. **Upscale** — Enhance low-resolution images with Real-ESRGAN, the same AI model used in professional photography workflows
-2. **Resize** — Fit to your configured maximum dimensions with letterbox padding or center-crop
+1. **Upscale** — When your target size is more than 1.2× larger than the source, Real-ESRGAN AI upscaling runs first so the enlarged image stays sharp
+2. **Resize** — Fit to your configured maximum dimensions with letterbox padding or center-crop (only when you set a maximum size)
 3. **Compress** — Shrink the file with perceptual compression, which strips data the eye cannot resolve (lossless and lossy)
-4. **Tag** — Generate descriptive, keyword-rich SEO alt text using AI and write it directly to WordPress media metadata
+4. **Tag** — Generate descriptive, keyword-rich SEO alt text using AI and write it directly to WordPress media metadata (on by default; can be turned off)
 
 Processing runs in the background using ActionScheduler — uploads complete instantly and optimization never slows your site.
 
@@ -29,7 +29,7 @@ Processing runs in the background using ActionScheduler — uploads complete ins
 * **Bulk optimize** — Process your entire existing Media Library from Media → Bulk Optimize with a real-time progress bar
 * **WebP and AVIF output** — Serve next-generation image formats that cut file sizes by 30–70% vs. JPEG
 * **AI-generated alt text** — Descriptive alt text is written to the standard WordPress alt text field, improving accessibility and image SEO rankings
-* **Thumbnail compression** — Optionally compress every WordPress-generated thumbnail (approximately 3 credits per size; disabled by default)
+* **Thumbnail compression** — Optionally compress every WordPress-generated thumbnail (3 credits per size; disabled by default)
 * **Original file backup** — Your unoptimized original is preserved alongside the optimized file; restore it in one click from the Media Library
 * **Credits auto-resume** — When API credits run out, all pending jobs pause and automatically resume 5 minutes after your plan resets — no intervention required
 * **Encrypted API key storage** — Your API key is encrypted with AES-256-CBC before being stored in the database and is never echoed into HTML
@@ -61,7 +61,7 @@ API calls are made to `api.glassypic.com`. See the [Privacy Policy](https://glas
 
 Most WordPress image optimizers are single-step compressors. GlassyPic runs a four-stage pipeline:
 
-* AI upscaling (Real-ESRGAN) before compression, so low-res images come out sharper — not just smaller
+* AI upscaling (Real-ESRGAN) when an image is enlarged, so it comes out sharper — not just bigger
 * AI-generated alt text written directly to WordPress metadata on every optimized image
 * AVIF output support, the most bandwidth-efficient format available today
 * Non-blocking background processing via ActionScheduler — the same job queue used by WooCommerce
@@ -115,7 +115,7 @@ A compression plugin does one step: it makes the file smaller. GlassyPic runs fo
 
 = How many credits does optimization use? =
 
-Each full-size image uses 1 credit. Thumbnail compression uses approximately 3 credits per size (opt-in, disabled by default). See [glassypic.com/pricing](https://glassypic.com/pricing) for plan details and credit limits.
+With the default settings, each image uses 4 credits: 3 for compression and 1 for AI alt text. Setting a maximum size adds 1 credit. If the target size is more than 1.2× larger than the source, AI upscaling runs automatically and adds 2 credits (7 credits total). Turning off alt text saves 1 credit. Thumbnail compression uses 3 credits per thumbnail size (opt-in, disabled by default). See [glassypic.com/pricing](https://glassypic.com/pricing) for plan details and credit limits.
 
 = What happens when my credits run out? =
 
