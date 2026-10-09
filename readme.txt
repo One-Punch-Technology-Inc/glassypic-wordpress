@@ -74,7 +74,7 @@ This plugin sends image data to **api.glassypic.com** for processing. Images are
 * [Terms of Service](https://glassypic.com/terms)
 * [Privacy Policy](https://glassypic.com/privacy)
 
-A GlassyPic account and API key (`tfy_live_...`) are required.
+A GlassyPic account and API key (`gp_live_...`) are required.
 
 == Installation ==
 
@@ -83,7 +83,7 @@ A GlassyPic account and API key (`tfy_live_...`) are required.
 3. Navigate to **Settings → GlassyPic**
 4. Create a free account at [glassypic.com/register](https://glassypic.com/register)
 5. In your GlassyPic dashboard, go to **API Keys → Generate New Key**, name it, and copy it
-6. Paste the key (starts with `tfy_live_`) into the API Key field and click **Save Settings**
+6. Paste the key (starts with `gp_live_`) into the API Key field and click **Save Settings**
 7. New uploads are now optimized automatically — run **Media → Bulk Optimize** to process your existing library
 
 == Frequently Asked Questions ==

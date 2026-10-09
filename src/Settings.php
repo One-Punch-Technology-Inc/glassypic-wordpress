@@ -4,6 +4,10 @@ namespace GlassyPic;
 
 class Settings
 {
+	public const KEY_PREFIX = 'gp_live_';
+	// Keys issued before 2026-10; the API no longer accepts them.
+	private const RETIRED_KEY_PREFIX = 'tfy_live_';
+
 	public function register(): void {
 		register_setting('glassypic', 'glassypic_api_key', [ 'sanitize_callback' => [ $this, 'sanitizeApiKey' ] ]);
 		register_setting('glassypic', 'glassypic_auto_optimize', [ 'sanitize_callback' => 'rest_sanitize_boolean' ]);
@@ -23,11 +27,16 @@ class Settings
 		}
 		// Already encrypted: on the first save update_option() falls through to add_option(),
 		// which runs this callback a second time on the value we just encrypted.
-		if (str_starts_with($this->decryptKey($trimmed), 'tfy_live_')) {
+		if (str_starts_with($this->decryptKey($trimmed), self::KEY_PREFIX)) {
 			return $trimmed;
 		}
-		if ( ! str_starts_with($trimmed, 'tfy_live_')) {
-			add_settings_error('glassypic', 'invalid_key', esc_html__('API key must start with tfy_live_', 'glassypic'));
+		if (str_starts_with($trimmed, self::RETIRED_KEY_PREFIX)) {
+			add_settings_error('glassypic', 'retired_key', esc_html__('This key uses an old format that no longer works. Generate a new key in your GlassyPic dashboard.', 'glassypic'));
+			return get_option('glassypic_api_key', '');
+		}
+		if ( ! str_starts_with($trimmed, self::KEY_PREFIX)) {
+			/* translators: %s: required API key prefix, e.g. gp_live_ */
+			add_settings_error('glassypic', 'invalid_key', esc_html(sprintf(__('API key must start with %s', 'glassypic'), self::KEY_PREFIX)));
 			return get_option('glassypic_api_key', '');
 		}
 		return $this->encryptKey($trimmed);
@@ -132,9 +141,9 @@ class Settings
 						<th><?php esc_html_e('API Key', 'glassypic'); ?></th>
 						<td>
 							<input type="password" name="glassypic_api_key"
-									value="<?php echo $hasKey ? 'tfy_live_••••••••••••' : ''; ?>"
+									value="<?php echo $hasKey ? esc_attr(self::KEY_PREFIX . '••••••••••••') : ''; ?>"
 									class="regular-text" autocomplete="off"
-									placeholder="tfy_live_..." />
+									placeholder="<?php echo esc_attr(self::KEY_PREFIX . '...'); ?>" />
 							<p class="description"><?php esc_html_e('Leave unchanged to keep your existing key.', 'glassypic'); ?></p>
 						</td>
 					</tr>

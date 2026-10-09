@@ -16,7 +16,7 @@ class ApiClientTest extends TestCase
 
     private function makeClient(): ApiClient
     {
-        return new ApiClient('tfy_live_testkey123', 'https://api.glassypic.com');
+        return new ApiClient('gp_live_testkey123', 'https://api.glassypic.com');
     }
 
     public function test_verify_key_returns_tier_and_credits(): void

@@ -53,8 +53,8 @@ uploads_logged() { $WP eval '$n=0; foreach(get_option("mock_log",[]) as $e){ if(
 $WP eval '$i=imagecreatetruecolor(1600,1200); for($x=0;$x<1600;$x++){imageline($i,$x,0,$x,1199,imagecolorallocate($i,$x%256,($x*3)%256,200));} imagejpeg($i,"'"$WORK"'/test.jpg",95);'
 
 echo "== API key: first save (option does not exist yet) + verify"
-$WP eval 'require_once ABSPATH."wp-admin/includes/template.php"; (new \GlassyPic\Settings())->register(); update_option("glassypic_api_key", "tfy_live_e2e0000000000000000000000000000000000000000000000000000000");'
-check "key decrypts after first save" "$($WP eval 'echo (new \GlassyPic\Settings())->getApiKey();')" "tfy_live_e2e0000000000000000000000000000000000000000000000000000000"
+$WP eval 'require_once ABSPATH."wp-admin/includes/template.php"; (new \GlassyPic\Settings())->register(); update_option("glassypic_api_key", "gp_live_e2e0000000000000000000000000000000000000000000000000000000");'
+check "key decrypts after first save" "$($WP eval 'echo (new \GlassyPic\Settings())->getApiKey();')" "gp_live_e2e0000000000000000000000000000000000000000000000000000000"
 check "verifyKey returns tier" "$($WP eval 'echo (new \GlassyPic\ApiClient((new \GlassyPic\Settings())->getApiKey()))->verifyKey()["tier"];' 2>&1)" "pro"
 
 echo "== Happy path: upload -> queue -> process -> replace -> alt text"
@@ -69,7 +69,7 @@ check "file replaced with smaller one" "$([ "$(stat -c %s "$FILE")" -lt "$BEFORE
 check "original backup kept" "$([ -f "$(meta "$ID" _glassypic_orig_backup)" ] && echo yes || echo no)" "yes"
 check "alt text written" "$(meta "$ID" _wp_attachment_image_alt)" "Gradient test card with GlassyPic label"
 check "/auto body nests settings" "$($WP eval '$a=array_values(array_filter(get_option("mock_log"),fn($e)=>$e["path"]==="/auto")); $b=$a[0]["body"]; echo (($b["settings"]["output_seo_tag_gen"]??null)===true && !isset($b["output_format"]) && count($b["temp_file_ids"])===1) ? "yes" : "no";')" "yes"
-check "Bearer API key sent" "$($WP eval 'echo str_starts_with(get_option("mock_log")[0]["auth"]??"", "Bearer tfy_live_") ? "yes" : "no";')" "yes"
+check "Bearer API key sent" "$($WP eval 'echo str_starts_with(get_option("mock_log")[0]["auth"]??"", "Bearer gp_live_") ? "yes" : "no";')" "yes"
 check "no re-queue after replace" "$(pending_for "$ID")" "0"
 
 echo "== Expired job fails fast"

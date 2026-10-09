@@ -29,20 +29,34 @@ class SettingsTest extends TestCase
 		Functions\expect('add_settings_error')->never();
 
 		$settings  = new Settings();
-		$encrypted = $settings->sanitizeApiKey('tfy_live_abc123');
+		$encrypted = $settings->sanitizeApiKey('gp_live_abc123');
 		$again     = $settings->sanitizeApiKey($encrypted);
 
 		self::assertSame($encrypted, $again);
 		Functions\when('get_option')->justReturn($again);
-		self::assertSame('tfy_live_abc123', $settings->getApiKey());
+		self::assertSame('gp_live_abc123', $settings->getApiKey());
 	}
 
 	public function test_sanitize_api_key_rejects_wrong_prefix(): void
 	{
-		Functions\when('esc_html__')->returnArg(1);
-		Functions\expect('add_settings_error')->once();
+		Functions\when('__')->returnArg(1);
+		Functions\when('esc_html')->returnArg(1);
+		Functions\expect('add_settings_error')
+			->once()
+			->with('glassypic', 'invalid_key', 'API key must start with gp_live_');
 		Functions\when('get_option')->justReturn('');
 
 		self::assertSame('', ( new Settings() )->sanitizeApiKey('sk_live_nope'));
+	}
+
+	public function test_sanitize_api_key_rejects_retired_prefix_with_rotate_message(): void
+	{
+		Functions\when('esc_html__')->returnArg(1);
+		Functions\expect('add_settings_error')
+			->once()
+			->with('glassypic', 'retired_key', \Mockery::pattern('/Generate a new key/'));
+		Functions\when('get_option')->justReturn('');
+
+		self::assertSame('', ( new Settings() )->sanitizeApiKey('tfy_live_' . str_repeat('a', 64)));
 	}
 }
