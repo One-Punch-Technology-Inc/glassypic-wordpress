@@ -48,7 +48,8 @@
   },
   "scripts": {
     "test": "phpunit --testdox",
-    "lint": "phpcs --standard=WordPress src/"
+    "lint": "phpcs --standard=phpcs.xml.dist src/ uninstall.php",
+    "e2e": "bash tests/e2e/run.sh"
   },
   "config": {
     "allow-plugins": {

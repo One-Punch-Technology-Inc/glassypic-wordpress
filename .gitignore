@@ -19,6 +19,5 @@ composer.phar
 CLAUDE.md
 AGENTS.md
 
-# WordPress test env (if added later)
-/tmp/wordpress/
-/tmp/wordpress-tests-lib/
+# End-to-end test env (tests/e2e/run.sh)
+/.e2e/
